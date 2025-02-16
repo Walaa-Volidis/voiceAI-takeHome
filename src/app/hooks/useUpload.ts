@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 export function useUpload() {
   const [file, setFile] = useState<File>();
-  const [fileUrl, setFileUrl] = useState('');
   const [extractedText, setExtractedText] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,7 +25,6 @@ export function useUpload() {
       });
 
       const data = await response.json();
-      setFileUrl(data.url);
       setExtractedText(data.text);
       console.log()
     } catch (error) {
@@ -36,7 +34,6 @@ export function useUpload() {
 
   return {
     file,
-    fileUrl,
     extractedText,
     handleFileChange,
     handleUpload,

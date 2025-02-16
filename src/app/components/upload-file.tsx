@@ -5,8 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useUpload } from '../hooks/useUpload';
 
 export default function UploadFile() {
-  const { file, fileUrl, handleFileChange, handleUpload } =
-    useUpload();
+  const { file, extractedText, handleFileChange, handleUpload } = useUpload();
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -15,10 +14,8 @@ export default function UploadFile() {
         <Button onClick={handleUpload} disabled={!file} className="w-full">
           Upload PDF
         </Button>
-        {fileUrl &&(
-          <div className="break-all">
-            File URL: {fileUrl}
-          </div>
+        {extractedText && (
+          <div className="break-all">extractedText: {extractedText}</div>
         )}
       </CardContent>
     </Card>
