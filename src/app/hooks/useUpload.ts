@@ -3,6 +3,8 @@ import { useState } from 'react';
 export function useUpload() {
   const [file, setFile] = useState<File>();
   const [extractedText, setExtractedText] = useState('');
+  const [isUploaded, setIsUploaded] = useState(false);
+  
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -14,7 +16,6 @@ export function useUpload() {
 
   const handleUpload = async () => {
     if (!file) return;
-
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -26,6 +27,7 @@ export function useUpload() {
 
       const data = await response.json();
       setExtractedText(data.text);
+      setIsUploaded;()
       console.log()
     } catch (error) {
       console.error('Upload failed:', error);

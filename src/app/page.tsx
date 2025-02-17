@@ -16,13 +16,16 @@ import type { ConnectionDetails } from '../app/api/token/route';
 import { NoAgentNotification } from '@/app/components/NoAgentNotification';
 import { CloseIcon } from '@/app/components/CloseIcon';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
+import UploadFile from '../app/components/upload-file';
+import { useUpload } from '../app/hooks/useUpload';
 
 export default function Page() {
+  const { file, isUploaded, extractedText, handleFileChange, handleUpload } =
+    useUpload();
   const [connectionDetails, updateConnectionDetails] = useState<
     ConnectionDetails | undefined
   >(undefined);
   const [agentState, setAgentState] = useState<AgentState>('disconnected');
-
   const onConnectButtonClicked = useCallback(async () => {
     // Generate room connection details, including:
     //   - A random Room name
@@ -58,12 +61,17 @@ export default function Page() {
         onDisconnected={() => {
           updateConnectionDetails(undefined);
         }}
-        className="grid grid-rows-[2fr_1fr] items-center"
       >
+        <UploadFile
+          file={file}
+          handleFileChange={handleFileChange}
+          handleUpload={handleUpload}
+        />
         <SimpleVoiceAssistant onStateChange={setAgentState} />
         <ControlBar
           onConnectButtonClicked={onConnectButtonClicked}
           agentState={agentState}
+          isUploaded={isUploaded}
         />
         <RoomAudioRenderer />
         <NoAgentNotification state={agentState} />
@@ -95,6 +103,7 @@ function SimpleVoiceAssistant(props: {
 function ControlBar(props: {
   onConnectButtonClicked: () => void;
   agentState: AgentState;
+  isUploaded: boolean;
 }) {
   /**
    * Use Krisp background noise reduction when available.
@@ -116,8 +125,9 @@ function ControlBar(props: {
             transition={{ duration: 1, ease: [0.09, 1.04, 0.245, 1.055] }}
             className="uppercase absolute left-1/2 -translate-x-1/2 px-4 py-2 bg-white text-black rounded-md"
             onClick={() => props.onConnectButtonClicked()}
+            disabled={!props.isUploaded}
           >
-            Start a conversation
+            {props.isUploaded ? 'Start a conversation' : 'Upload and Start'}
           </motion.button>
         )}
       </AnimatePresence>

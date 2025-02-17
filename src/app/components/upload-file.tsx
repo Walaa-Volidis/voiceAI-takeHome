@@ -2,11 +2,17 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { useUpload } from '../hooks/useUpload';
 
-export default function UploadFile() {
-  const { file, extractedText, handleFileChange, handleUpload } = useUpload();
-
+interface UploadFileProps {
+  file: File | undefined;
+  handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleUpload: () => void;
+}
+export default function UploadFile({
+  file,
+  handleFileChange,
+  handleUpload,
+}: UploadFileProps) {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardContent className="pt-6 space-y-4">
@@ -14,9 +20,6 @@ export default function UploadFile() {
         <Button onClick={handleUpload} disabled={!file} className="w-full">
           Upload PDF
         </Button>
-        {extractedText && (
-          <div className="break-all">extractedText: {extractedText}</div>
-        )}
       </CardContent>
     </Card>
   );
