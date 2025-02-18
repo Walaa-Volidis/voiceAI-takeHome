@@ -12,7 +12,7 @@ import {
 } from '@livekit/components-react';
 import { useCallback, useEffect, useState } from 'react';
 import { MediaDeviceFailure } from 'livekit-client';
-import type { ConnectionDetails } from '../app/api/token/route';
+import type { ConnectionDetails } from './api/connection-details/route';
 import { NoAgentNotification } from '@/app/components/NoAgentNotification';
 import { CloseIcon } from '@/app/components/CloseIcon';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
@@ -20,8 +20,14 @@ import UploadFile from '../app/components/upload-file';
 import { useUploadFile } from '../app/hooks/useUploadFile';
 
 export default function Page() {
-  const { file, extractedText, isUploaded, handleFileChange, handleUpload } =
-    useUploadFile();
+  const {
+    file,
+    extractedText,
+    fileName,
+    isUploaded,
+    handleFileChange,
+    handleUpload,
+  } = useUploadFile();
   const [connectionDetails, updateConnectionDetails] = useState<
     ConnectionDetails | undefined
   >(undefined);
@@ -41,10 +47,16 @@ export default function Page() {
         '/api/connection-details',
       window.location.origin
     );
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: extractedText, fileName: fileName }),
+    });
     const connectionDetailsData = await response.json();
     updateConnectionDetails(connectionDetailsData);
-  }, []);
+  }, [extractedText, fileName]);
 
   return (
     <main

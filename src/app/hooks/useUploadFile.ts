@@ -4,6 +4,7 @@ export function useUploadFile() {
   const [file, setFile] = useState<File>();
   const [extractedText, setExtractedText] = useState('');
   const [isUploaded, setIsUploaded] = useState(false);
+  const [fileName, setFileName] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -26,6 +27,7 @@ export function useUploadFile() {
 
       const data = await response.json();
       setExtractedText(data.text);
+      setFileName(file.name);
       setIsUploaded(true);
     } catch (error) {
       console.error('Upload failed:', error);
@@ -35,6 +37,7 @@ export function useUploadFile() {
   return {
     file,
     isUploaded,
+    fileName,
     extractedText,
     handleFileChange,
     handleUpload,
