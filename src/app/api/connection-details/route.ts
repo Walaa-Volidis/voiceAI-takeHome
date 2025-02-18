@@ -3,7 +3,7 @@ import {
   AccessTokenOptions,
   VideoGrant,
 } from 'livekit-server-sdk';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // NOTE: you are expected to define the following environment variables in `.env.local`:
 const API_KEY = process.env.LIVEKIT_API_KEY;
@@ -20,18 +20,19 @@ export type ConnectionDetails = {
   participantToken: string;
 };
 
-export async function GET() {
-  try {
-    if (LIVEKIT_URL === undefined) {
-      throw new Error('LIVEKIT_URL is not defined');
-    }
-    if (API_KEY === undefined) {
-      throw new Error('LIVEKIT_API_KEY is not defined');
-    }
-    if (API_SECRET === undefined) {
-      throw new Error('LIVEKIT_API_SECRET is not defined');
-    }
+export type RequestBody = {
+  content: string;
+  fileName: string;
+};
 
+export async function POST(request: NextRequest) {
+  try {
+    if (!API_KEY || !API_SECRET)
+      throw new Error('LIVEKIT credentials is not defined');
+
+    if (!LIVEKIT_URL) throw new Error('LIVEKIT_URL is not defined');
+
+    const body: RequestBody = await request.json();
     // Generate participant token
     const participantIdentity = `voice_assistant_user_${Math.floor(
       Math.random() * 10_000
@@ -40,10 +41,16 @@ export async function GET() {
       Math.random() * 10_000
     )}`;
     const participantToken = await createParticipantToken(
-      { identity: participantIdentity },
+      {
+        identity: participantIdentity,
+        metadata: JSON.stringify({
+          content: body.content,
+          fileName: body.fileName,
+        }),
+      },
       roomName
     );
-
+    console.log('hey participantToken', participantToken);
     // Return connection details
     const data: ConnectionDetails = {
       serverUrl: LIVEKIT_URL,
@@ -51,10 +58,7 @@ export async function GET() {
       participantToken: participantToken,
       participantName: participantIdentity,
     };
-    const headers = new Headers({
-      'Cache-Control': 'no-store',
-    });
-    return NextResponse.json(data, { headers });
+    return NextResponse.json(data);
   } catch (error) {
     if (error instanceof Error) {
       console.error(error);
