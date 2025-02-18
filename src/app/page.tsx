@@ -17,11 +17,11 @@ import { NoAgentNotification } from '@/app/components/NoAgentNotification';
 import { CloseIcon } from '@/app/components/CloseIcon';
 import { useKrispNoiseFilter } from '@livekit/components-react/krisp';
 import UploadFile from '../app/components/upload-file';
-import { useUpload } from '../app/hooks/useUpload';
+import { useUploadFile } from '../app/hooks/useUploadFile';
 
 export default function Page() {
-  const { file, isUploaded, extractedText, handleFileChange, handleUpload } =
-    useUpload();
+  const { file, extractedText, isUploaded, handleFileChange, handleUpload } =
+    useUploadFile();
   const [connectionDetails, updateConnectionDetails] = useState<
     ConnectionDetails | undefined
   >(undefined);
