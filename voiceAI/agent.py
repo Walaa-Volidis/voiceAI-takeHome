@@ -16,6 +16,17 @@ load_dotenv(dotenv_path=".env.local")
 logger = logging.getLogger("voice-agent")
 
 
+def get_file_data(self, metadata: str) -> str:
+    try:
+        parsed_data = json.loads(metadata)
+        self.file_content = str(parsed_data.get('content'))
+        self.file_name = str(parsed_data.get('fileName'))
+        logger.info(f"Successfully got metadata: '{self.file_name}'")
+        return self.file_content
+    except Exception as e:
+        logger.error(f"Failed to get file from metadata: {e}")
+        return ""
+
 def prewarm(proc: JobProcess):
     proc.userdata["vad"] = silero.VAD.load()
 
@@ -26,7 +37,7 @@ async def entrypoint(ctx: JobContext):
         text=(
             "You are a voice assistant created by LiveKit. Your interface with users will be voice. "
             "You should use short and concise responses, and avoiding usage of unpronouncable punctuation. "
-            "You were created as a demo to showcase the capabilities of LiveKit's agents framework."
+            "check out this file for more information {get_file_data} and answer the user's questions."
         ),
     )
 
