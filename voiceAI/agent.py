@@ -1,5 +1,5 @@
 import logging
-
+import json
 from dotenv import load_dotenv
 from livekit.agents import (
     AutoSubscribe,
@@ -15,17 +15,17 @@ from livekit.plugins import silero, openai, elevenlabs
 load_dotenv(dotenv_path=".env.local")
 logger = logging.getLogger("voice-agent")
 
-
-def get_file_data(self, metadata: str) -> str:
-    try:
-        parsed_data = json.loads(metadata)
-        self.file_content = str(parsed_data.get('content'))
-        self.file_name = str(parsed_data.get('fileName'))
-        logger.info(f"Successfully got metadata: '{self.file_name}'")
-        return self.file_content
-    except Exception as e:
-        logger.error(f"Failed to get file from metadata: {e}")
-        return ""
+class FileContext(llm.FunctionContext):
+    def get_file_data(self, metadata: str) -> str:
+        try:
+            parsed_data = json.loads(metadata)
+            self.file_content = str(parsed_data.get('content'))
+            self.file_name = str(parsed_data.get('fileName'))
+            logger.info(f"Successfully got metadata: '{self.file_name}'")
+            return self.file_content
+        except Exception as e:
+            logger.error(f"Failed to get file from metadata: {e}")
+            return ""
 
 def prewarm(proc: JobProcess):
     proc.userdata["vad"] = silero.VAD.load()
@@ -47,13 +47,16 @@ async def entrypoint(ctx: JobContext):
     # Wait for the first participant to connect
     participant = await ctx.wait_for_participant()
     logger.info(f"starting voice assistant for participant {participant.identity}")
-
+    file_handler = FileContext()
+    if participant.metadata:
+        file_handler.get_file_data(participant.metadata)
     agent = VoicePipelineAgent(
         vad=ctx.proc.userdata["vad"],
         stt=openai.STT.with_groq(model="whisper-large-v3"),
         llm=openai.LLM.with_groq(model="llama-3.3-70b-versatile"),
         tts=elevenlabs.TTS(),
         chat_ctx=initial_ctx,
+        fnc_ctx=file_handler,
     )
 
     agent.start(ctx.room, participant)
