@@ -52,6 +52,8 @@ async def entrypoint(ctx: JobContext):
     file_handler = FileContext()
     if participant.metadata:
         file_handler.get_file_data(participant.metadata)
+    else:
+        logger.error(f"Invalid or missing metadata.")
 
     agent = VoicePipelineAgent(
         vad=ctx.proc.userdata["vad"],
