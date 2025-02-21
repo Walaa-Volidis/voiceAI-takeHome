@@ -21,7 +21,7 @@ class FileContext(llm.FunctionContext):
             parsed_data = json.loads(metadata)
             self.file_content = str(parsed_data.get('content'))
             self.file_name = str(parsed_data.get('fileName'))
-            logger.info(f"Successfully got metadata: '{self.file_name}'")
+            logger.info(f"Successfully got metadata: '{self.file_name}' '{self.file_content}'")
             return self.file_content
         except Exception as e:
             logger.error(f"Failed to get file from metadata: {e}")
@@ -37,7 +37,7 @@ async def entrypoint(ctx: JobContext):
         text=(
             "You are a voice assistant created by LiveKit. Your interface with users will be voice. "
             "You should use short and concise responses, and avoiding usage of unpronouncable punctuation. "
-            "check out this file for more information {get_file_data} and answer the user's questions."
+            "check out this file for more information using {get_file_data} and answer the user's questions."
         ),
     )
 
@@ -47,9 +47,11 @@ async def entrypoint(ctx: JobContext):
     # Wait for the first participant to connect
     participant = await ctx.wait_for_participant()
     logger.info(f"starting voice assistant for participant {participant.identity}")
+
     file_handler = FileContext()
     if participant.metadata:
         file_handler.get_file_data(participant.metadata)
+
     agent = VoicePipelineAgent(
         vad=ctx.proc.userdata["vad"],
         stt=openai.STT.with_groq(model="whisper-large-v3"),
@@ -60,7 +62,7 @@ async def entrypoint(ctx: JobContext):
     )
 
     agent.start(ctx.room, participant)
-
+    logger.info(f"participant name: {participant.name}")
     # The agent should be polite and greet the user when it joins :)
     await agent.say("Hey, how can I help you today?", allow_interruptions=True)
 

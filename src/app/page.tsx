@@ -41,7 +41,7 @@ export default function Page() {
     //
     // In real-world application, you would likely allow the user to specify their
     // own participant name, and possibly to choose from existing rooms to join.
-
+    console.log('hey extractedText', extractedText);
     const url = new URL(
       process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT ??
         '/api/connection-details',
@@ -56,7 +56,7 @@ export default function Page() {
     });
     const connectionDetailsData = await response.json();
     updateConnectionDetails(connectionDetailsData);
-  }, [extractedText, fileName]);
+  }, [extractedText]);
 
   return (
     <main
