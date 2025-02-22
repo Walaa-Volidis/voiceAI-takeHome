@@ -1,4 +1,8 @@
+import { uploadFile } from '@/lib/uploadFile';
 import { useState } from 'react';
+import z from 'zod';
+
+const ZTextSchema = z.string();
 
 export function useUploadFile() {
   const [file, setFile] = useState<File>();
@@ -17,16 +21,8 @@ export function useUploadFile() {
   const handleUpload = async () => {
     if (!file) return;
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      setExtractedText(data.text);
+      const data = await uploadFile(file);
+      setExtractedText(ZTextSchema.parse(data.text));
       setFileName(file.name);
       setIsUploaded(true);
     } catch (error) {
