@@ -1,19 +1,15 @@
 import { z } from 'zod';
 
 export const ZServerSettings = z.object({
-  region: z.string(),
-  accessKeyId: z.string(),
-  secretAccessKey: z.string(),
-  destBucket: z.string(),
-  endpoint: z.string(),
-  groqApi : z.string()
+  groqApi : z.string(),
+  liveKitApi: z.string(),
+  liveKitApiSecret: z.string(),
+  liveKitUrl: z.string(),
 });
 
 export const SERVER_SETTINGS = ZServerSettings.parse({
-  region: process.env['AWS_REGION'],
-  accessKeyId: process.env['ACCESS_KEY'],
-  secretAccessKey: process.env['SECRET_ACCESS_KEY'],
-  destBucket: process.env['DEST_BUCKET'],
-  endpoint: process.env['S3_ENDPOINT'],
-  groqApi: process.env['GROQ_API_KEY']
+  groqApi: process.env['GROQ_API_KEY'],
+  liveKitApi: process.env['LIVEKIT_API_KEY'],
+  liveKitApiSecret: process.env['LIVEKIT_API_SECRET'],
+  liveKitUrl: process.env['LIVEKIT_URL'],
 });

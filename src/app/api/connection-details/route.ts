@@ -4,11 +4,12 @@ import {
   VideoGrant,
 } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
+import { SERVER_SETTINGS } from '../../../settings';
 
 // NOTE: you are expected to define the following environment variables in `.env.local`:
-const API_KEY = process.env.LIVEKIT_API_KEY;
-const API_SECRET = process.env.LIVEKIT_API_SECRET;
-const LIVEKIT_URL = process.env.LIVEKIT_URL;
+const API_KEY = SERVER_SETTINGS.liveKitApi;
+const API_SECRET = SERVER_SETTINGS.liveKitApiSecret;
+const LIVEKIT_URL = SERVER_SETTINGS.liveKitUrl;
 
 // don't cache the results
 export const revalidate = 0;
@@ -27,10 +28,11 @@ export type RequestBody = {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!API_KEY || !API_SECRET)
+    if (!SERVER_SETTINGS.liveKitApi || !SERVER_SETTINGS.liveKitApiSecret)
       throw new Error('LIVEKIT credentials is not defined');
 
-    if (!LIVEKIT_URL) throw new Error('LIVEKIT_URL is not defined');
+    if (!SERVER_SETTINGS.liveKitUrl)
+      throw new Error('LIVEKIT_URL is not defined');
 
     const body: RequestBody = await request.json();
     // Generate participant token
