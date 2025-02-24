@@ -5,6 +5,7 @@ import {
 } from 'livekit-server-sdk';
 import { NextRequest, NextResponse } from 'next/server';
 import { SERVER_SETTINGS } from '../../../settings';
+import { z } from 'zod';
 
 // NOTE: you are expected to define the following environment variables in `.env.local`:
 const API_KEY = SERVER_SETTINGS.liveKitApi;
@@ -14,17 +15,17 @@ const LIVEKIT_URL = SERVER_SETTINGS.liveKitUrl;
 // don't cache the results
 export const revalidate = 0;
 
-export type ConnectionDetails = {
-  serverUrl: string;
-  roomName: string;
-  participantName: string;
-  participantToken: string;
-};
+const ZConnectionDetailsSchema = z.object({
+  serverUrl: z.string(),
+  roomName: z.string(),
+  participantName: z.string(),
+  participantToken: z.string(),
+});
 
-export type RequestBody = {
-  content: string;
-  fileName: string;
-};
+const ZRequestBodySchema = z.object({
+  content: z.string(),
+  fileName: z.string(),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
     if (!SERVER_SETTINGS.liveKitUrl)
       throw new Error('LIVEKIT_URL is not defined');
 
-    const body: RequestBody = await request.json();
+    const body = ZRequestBodySchema.parse(await request.json());
     // Generate participant token
     const participantIdentity = `voice_assistant_user_${Math.floor(
       Math.random() * 10_000
@@ -54,12 +55,12 @@ export async function POST(request: NextRequest) {
     );
     console.log('hey participantToken', participantToken);
     // Return connection details
-    const data: ConnectionDetails = {
+    const data = ZConnectionDetailsSchema.parse({
       serverUrl: LIVEKIT_URL,
       roomName,
       participantToken: participantToken,
       participantName: participantIdentity,
-    };
+    });
     return NextResponse.json(data);
   } catch (error) {
     if (error instanceof Error) {
