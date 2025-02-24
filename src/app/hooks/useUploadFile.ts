@@ -13,7 +13,11 @@ export function useUploadFile() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type === 'application/pdf') {
+    if (
+      selectedFile &&
+      (selectedFile.type === 'application/pdf' ||
+        selectedFile.type === 'text/plain')
+    ) {
       setFile(selectedFile);
     }
   };

@@ -6,7 +6,9 @@ import z from 'zod';
 const ZTextSchema = z.string();
 export async function uploadFile(file: File) {
   if (!file.type.includes('pdf')) {
-    throw new Error('Only PDF files are allowed');
+    const content = await file.text();
+    ZTextSchema.parse(content);
+    return { text: content };
   }
 
   const arrayBuffer = await file.arrayBuffer();

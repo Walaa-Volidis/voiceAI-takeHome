@@ -16,9 +16,9 @@ export default function UploadFile({
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardContent className="pt-6 space-y-4">
-        <Input type="file" accept=".pdf" onChange={handleFileChange} />
+        <Input type="file" accept=".pdf, .txt" onChange={handleFileChange} />
         <Button onClick={handleUpload} disabled={!file} className="w-full">
-          Upload PDF
+          Upload PDF or TXT file
         </Button>
       </CardContent>
     </Card>
