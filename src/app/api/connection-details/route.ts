@@ -15,12 +15,12 @@ const LIVEKIT_URL = SERVER_SETTINGS.liveKitUrl;
 // don't cache the results
 export const revalidate = 0;
 
-const ZConnectionDetailsSchema = z.object({
-  serverUrl: z.string(),
-  roomName: z.string(),
-  participantName: z.string(),
-  participantToken: z.string(),
-});
+export type ConnectionDetails = {
+  serverUrl: string;
+  roomName: string;
+  participantName: string;
+  participantToken: string;
+};
 
 const ZRequestBodySchema = z.object({
   content: z.string(),
@@ -55,12 +55,12 @@ export async function POST(request: NextRequest) {
     );
     console.log('hey participantToken', participantToken);
     // Return connection details
-    const data = ZConnectionDetailsSchema.parse({
+    const data: ConnectionDetails = {
       serverUrl: LIVEKIT_URL,
       roomName,
       participantToken: participantToken,
       participantName: participantIdentity,
-    });
+    };
     return NextResponse.json(data);
   } catch (error) {
     if (error instanceof Error) {
