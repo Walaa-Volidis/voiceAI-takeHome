@@ -17,6 +17,10 @@ load_dotenv(dotenv_path=".env.local")
 logger = logging.getLogger("voice-agent")
 
 class FileContext(llm.FunctionContext):
+    def __init__(self):
+        super().__init__()
+        self.file_content = ""
+        self.file_name = ""
     def get_file_data(self, metadata: str) -> str:
         try:
             parsed_data = json.loads(metadata)
@@ -32,16 +36,9 @@ def prewarm(proc: JobProcess):
     proc.userdata["vad"] = silero.VAD.load()
 
 
-async def entrypoint(ctx: JobContext):
-    initial_ctx = llm.ChatContext().append(
-        role="system",
-        text=(
-            "You are a voice assistant created by LiveKit. Your interface with users will be voice. "
-            "You should use short and concise responses, and avoiding usage of unpronouncable punctuation. "
-            "check out this file for more information using {get_file_data} and answer the user's questions."
-        ),
-    )
-
+async def entrypoint(ctx: JobContext):   
+    file_handler = FileContext()
+    
     logger.info(f"connecting to room {ctx.room.name}")
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
 
@@ -49,12 +46,21 @@ async def entrypoint(ctx: JobContext):
     participant = await ctx.wait_for_participant()
     logger.info(f"starting voice assistant for participant {participant.identity}")
 
-    file_handler = FileContext()
+    file_content =""
     if participant.metadata:
-        file_handler.get_file_data(participant.metadata)
+        file_content = file_handler.get_file_data(participant.metadata)
+        logger.info(f"File content extracted: {file_content[:100]}...")
     else:
         logger.error(f"Invalid or missing metadata.")
 
+    initial_ctx = llm.ChatContext().append(
+            role="system",
+            text=(
+                "You are a voice assistant created by LiveKit. Your interface with users will be voice. "
+                "You should use short and concise responses, and avoiding usage of unpronouncable punctuation. "
+                f"Here is the file content to reference when answering questions: {file_content}"
+            ),
+        )
     agent = VoicePipelineAgent(
         vad=ctx.proc.userdata["vad"],
         stt=openai.STT.with_groq(model="whisper-large-v3"),
@@ -67,7 +73,7 @@ async def entrypoint(ctx: JobContext):
     agent.start(ctx.room, participant)
     logger.info(f"participant name: {participant.name}")
     # The agent should be polite and greet the user when it joins :)
-    await agent.say("Hey, how can I help you today?", allow_interruptions=True)
+    await agent.say("Hey, how can I help you today? مرحباً، كيف يمكنني مساعدتك اليوم؟", allow_interruptions=True)
 
 
 if __name__ == "__main__":
