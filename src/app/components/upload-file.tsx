@@ -35,7 +35,7 @@ export default function UploadFile({
       transition={{ duration: 0.5 }}
     >
       {' '}
-      <Card className="w-full max-w-md mx-auto shadow-lg border-2 border-slate-700 bg-black text-white">
+      <Card className="w-full max-w-md mx-auto shadow-lg border-2 border-slate-700 bg-[#111111] text-white">
         <CardHeader className="pb-2">
           <CardTitle className="text-2xl text-center text-white">
             Voice AI Take Home
