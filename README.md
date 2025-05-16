@@ -1,6 +1,4 @@
-# VoiceAI - Document Conversation Agent
-
-![VoiceAI Logo](public/file.svg)
+# VoiceAI-takeHome - Document Conversation Agent
 
 ## Overview
 
