@@ -1,0 +1,6 @@
+# LiveKit agent and plugins
+livekit-agents[deepgram,openai,cartesia,silero,turn-detector,groq]==1.0.0
+livekit-plugins-noise-cancellation==0.2.0
+# Environment variables
+python-dotenv==1.0.1
+
