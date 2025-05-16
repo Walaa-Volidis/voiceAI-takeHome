@@ -8,20 +8,38 @@ from livekit.agents import (
     JobProcess,
     WorkerOptions,
     cli,
-    llm,
+    Agent,
+    AgentSession,
+    RunContext
 )
-from livekit.agents.pipeline import VoicePipelineAgent
-from livekit.plugins import silero, openai, elevenlabs
+from livekit.agents import llm
+from livekit.plugins import silero, groq
 
 load_dotenv(dotenv_path=".env.local")
 logger = logging.getLogger("voice-agent")
 
-class FileContext(llm.FunctionContext):
-    def __init__(self):
-        super().__init__()
-        self.file_content = ""
+class FileAgent(Agent):
+    def __init__(self, file_content=""):
+        super().__init__(
+            instructions=(
+                "You are a voice assistant created by LiveKit. Your interface with users will be voice. "
+                "You should use short and concise responses, and avoiding usage of unpronouncable punctuation. "
+                f"You have access to a file named '{{file_name}}'. Here is the content of that file: {file_content}. "
+                "When asked questions, refer to this file content to provide answers. "
+                "If the question is about the file content, directly answer from the content. "
+                "If you don't find the answer in the file, clearly state that the information is not available in the file."
+            )
+        )
+        self.file_content = file_content
         self.file_name = ""
-    def get_file_data(self, metadata: str) -> str:
+        
+    @llm.function_tool
+    async def get_file_data(self, context: RunContext, metadata: str) -> str:
+        """Gets file data from the provided metadata.
+        
+        Args:
+            metadata: JSON string containing file metadata
+        """
         try:
             parsed_data = json.loads(metadata)
             self.file_content = str(parsed_data.get('content'))
@@ -37,43 +55,47 @@ def prewarm(proc: JobProcess):
 
 
 async def entrypoint(ctx: JobContext):   
-    file_handler = FileContext()
-    
     logger.info(f"connecting to room {ctx.room.name}")
     await ctx.connect(auto_subscribe=AutoSubscribe.AUDIO_ONLY)
-
-    # Wait for the first participant to connect
     participant = await ctx.wait_for_participant()
     logger.info(f"starting voice assistant for participant {participant.identity}")
-
-    file_content =""
+    file_content = ""
+    file_name = ""
     if participant.metadata:
-        file_content = file_handler.get_file_data(participant.metadata)
+        temp_agent = FileAgent()
+        await temp_agent.get_file_data(None, participant.metadata)
+        file_content = temp_agent.file_content
+        file_name = temp_agent.file_name
         logger.info(f"File content extracted: {file_content[:100]}...")
+        file_agent = FileAgent(file_content)
     else:
         logger.error(f"Invalid or missing metadata.")
-
-    initial_ctx = llm.ChatContext().append(
-            role="system",
-            text=(
-                "You are a voice assistant created by LiveKit. Your interface with users will be voice. "
-                "You should use short and concise responses, and avoiding usage of unpronouncable punctuation. "
-                f"Here is the file content to reference when answering questions: {file_content}"
-            ),
-        )
-    agent = VoicePipelineAgent(
+        file_agent = FileAgent()
+    
+    session = AgentSession(
         vad=ctx.proc.userdata["vad"],
-        stt=openai.STT.with_groq(model="whisper-large-v3"),
-        llm=openai.LLM.with_groq(model="llama-3.3-70b-versatile"),
-        tts=elevenlabs.TTS(),
-        chat_ctx=initial_ctx,
-        fnc_ctx=file_handler,
+        stt=groq.STT(model="whisper-large-v3"),
+        llm=groq.LLM(model="llama-3.3-70b-versatile"),
+        tts=groq.TTS(
+        model="playai-tts",
+        voice="Arista-PlayAI",
+        ),
+        # tts=groq.TTS(
+        # model="playai-tts-arabic",
+        # voice="Nasser-PlayAI",
+        # ),
     )
 
-    agent.start(ctx.room, participant)
+    await session.start(
+        agent=file_agent,
+        room=ctx.room
+    )    
     logger.info(f"participant name: {participant.name}")
-    # The agent should be polite and greet the user when it joins :)
-    await agent.say("Hey, how can I help you today? مرحباً، كيف يمكنني مساعدتك اليوم؟", allow_interruptions=True)
+    if file_name:
+        greeting = f"Hey, I'm your LiveKit assistant. I can help you with questions about the file '{file_name}'. How can I assist you today?"
+    else:
+        greeting = "Hey, how can I help you today?"
+    await session.say(greeting, allow_interruptions=True)
 
 
 if __name__ == "__main__":
