@@ -69,15 +69,21 @@ python -m venv venv
 # Activate the virtual environment
 .\venv\Scripts\Activate.ps1
 
+# Install Python dependencies from requirements.txt
+pip install -r requirements.txt
+
 # Download required model files
 python agent.py download-files
-
-# Install Python dependencies
-pip install "livekit-agents[deepgram,openai,cartesia,silero,turn-detector]~=1.0" "livekit-plugins-noise-cancellation~=0.2" "python-dotenv" "livekit-agents[groq]~=1.0"
 
 # Start the agent in development mode
 python agent.py dev
 ```
+
+The `requirements.txt` file includes all necessary Python dependencies for the voice agent:
+
+- LiveKit agent packages with support for Groq AI services
+- LiveKit noise cancellation plugin
+- Additional utilities like dotenv for environment variable management
 
 ### 4. Configure environment variables
 
@@ -161,6 +167,7 @@ python agent.py start
 
 ```
 ├── agent/               # Python agent code
+│   └── requirements.txt # Python dependencies
 ├── public/              # Static assets
 ├── src/
 │   ├── app/             # Next.js app directory
