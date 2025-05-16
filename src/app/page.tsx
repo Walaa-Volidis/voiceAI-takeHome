@@ -25,6 +25,7 @@ export default function Page() {
     extractedText,
     fileName,
     isUploaded,
+    error,
     handleFileChange,
     handleUpload,
   } = useUploadFile();
@@ -33,14 +34,6 @@ export default function Page() {
   >(undefined);
   const [agentState, setAgentState] = useState<AgentState>('disconnected');
   const onConnectButtonClicked = useCallback(async () => {
-    // Generate room connection details, including:
-    //   - A random Room name
-    //   - A random Participant name
-    //   - An Access Token to permit the participant to join the room
-    //   - The URL of the LiveKit server to connect to
-    //
-    // In real-world application, you would likely allow the user to specify their
-    // own participant name, and possibly to choose from existing rooms to join.
     console.log('hey extractedText', extractedText);
     const url = new URL(
       process.env.NEXT_PUBLIC_CONN_DETAILS_ENDPOINT ??
@@ -78,6 +71,7 @@ export default function Page() {
           file={file}
           handleFileChange={handleFileChange}
           handleUpload={handleUpload}
+          error={error}
         />
         <SimpleVoiceAssistant onStateChange={setAgentState} />
         <ControlBar

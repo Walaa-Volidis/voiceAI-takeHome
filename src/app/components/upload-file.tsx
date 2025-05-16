@@ -15,12 +15,14 @@ interface UploadFileProps {
   handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleUpload: () => void;
   isLoading?: boolean;
+  error?: string | null;
 }
 export default function UploadFile({
   file,
   handleFileChange,
   handleUpload,
   isLoading = false,
+  error = null,
 }: UploadFileProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,7 +79,14 @@ export default function UploadFile({
                 <p className="text-sm text-slate-300 font-medium">
                   {file ? file.name : 'Click to browse or drag & drop'}
                 </p>
-                <p className="text-xs text-slate-400">PDF or TXT files only</p>
+                <p className="text-xs text-slate-400">
+                  PDF or TXT files only (Max 1MB)
+                </p>
+                {error && (
+                  <p className="text-sm text-red-500 mt-2 font-medium">
+                    {error}
+                  </p>
+                )}
               </div>
             </div>
           </div>
