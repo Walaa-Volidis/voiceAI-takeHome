@@ -149,38 +149,4 @@ python agent.py start
 4. Speak naturally to ask questions about the document content
 5. The AI will respond with information based on the document
 
-## System Requirements
 
-- **Browser:** Latest version of Chrome, Firefox, or Edge with WebRTC support
-- **Microphone:** Required for voice interaction with the AI
-- **Internet Connection:** Good connection required for real-time voice communication
-
-## Troubleshooting
-
-- If you encounter microphone permission issues, ensure your browser has permission to access your microphone
-- If the agent isn't responding, check the terminal running the Python agent for any error messages
-- For connection issues, verify your LiveKit credentials and internet connectivity
-
-## Project Structure
-
-```
-├── agent/               # Python agent code
-│   └── requirements.txt # Python dependencies
-├── public/              # Static assets
-├── src/
-│   ├── app/             # Next.js app directory
-│   │   ├── api/         # API routes
-│   │   ├── components/  # App-specific components
-│   │   ├── hooks/       # Custom React hooks
-│   ├── components/      # Shared React components
-│   │   └── ui/          # UI component library
-│   ├── lib/             # Utility functions
-├── .env.local           # Environment variables (not in repository)
-└── package.json         # Project dependencies
-```
-
-## Acknowledgements
-
-- [LiveKit](https://livekit.io/) for real-time communication infrastructure
-- [Groq](https://groq.com/) for AI services
-- [Silero Team](https://github.com/snakers4/silero-vad) for Voice Activity Detection
