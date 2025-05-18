@@ -119,28 +119,6 @@ cd agent
 python agent.py dev
 ```
 
-### Production Mode
-
-1. Build the Next.js application:
-
-```bash
-npm run build
-```
-
-2. Start the production server:
-
-```bash
-npm run start
-```
-
-3. Start the agent in production mode:
-
-```bash
-cd agent
-.\venv\Scripts\Activate.ps1
-python agent.py start
-```
-
 ## Usage
 
 1. Open the application in your browser (default is `http://localhost:3000`)
