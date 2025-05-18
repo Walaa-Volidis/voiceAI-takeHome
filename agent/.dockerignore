@@ -1,0 +1,31 @@
+# Python artifacts
+venv/
+__pycache__/
+*.py[cod]
+
+# Local environment & config files
+.env
+.env.*
+.DS_Store
+
+# Logs & temp files
+*.log
+*.gz
+*.tgz
+*.tmp
+.cache
+
+# Docker artifacts
+Dockerfile
+.dockerignore
+
+# Node/Next.js artifacts (if your backend folder sometimes gets copied from monorepo root)
+node_modules/
+.next/
+dist/
+
+# Git & IDE
+.git
+.gitignore
+.idea/
+.vscode/
