@@ -101,6 +101,20 @@ GROQ_API_KEY=your_groq_api_key
 NEXT_PUBLIC_CONN_DETAILS_ENDPOINT=/api/connection-details
 ```
 
+### 5. Docker Support
+
+You can also run the agent using Docker:
+
+```bash
+# Build the Docker image
+docker build -t livekit-agent -f agent/Dockerfile agent
+
+# Run the Docker container
+docker run --rm --env-file agent/.env.local livekit-agent start
+```
+
+Make sure to create an `.env.local` file in the `agent` directory with the required environment variables before running the Docker container.
+
 ## Running the Application
 
 ### Development Mode
@@ -126,5 +140,3 @@ python agent.py dev
 3. Once the document is processed, click "Connect" to start the voice assistant
 4. Speak naturally to ask questions about the document content
 5. The AI will respond with information based on the document
-
-
